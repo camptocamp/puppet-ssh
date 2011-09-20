@@ -19,4 +19,11 @@ class ssh {
     pattern    => "/usr/sbin/sshd",
     require    => Package["ssh"],
   }
+
+  file { "/etc/ssh/ssh_known_hosts":
+    ensure => present,
+    mode   => 0644,
+    owner  => "root",
+  }
+
 }
