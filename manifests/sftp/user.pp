@@ -22,14 +22,14 @@
 # [*home*]
 #   The home directory of the user
 #
-# [*root*]
+# [*basedir*]
 #   This directory will be used to store files
 #
-# [*root_mode*]
-#   The desired permissions for the root directory
+# [*basedir_mode*]
+#   The desired permissions for the base directory
 #
 # [*group*]
-#   The restricted sftp group name
+#   The restricted sftp group name. Must be declared outside this definition.
 #
 # === Examples
 #
@@ -55,12 +55,6 @@ define ssh::sftp::user (
   $user_home = $home ? {
     false   => "/home/${name}",
     default => $home,
-  }
-
-  if !defined(Group[$group]){
-    group {$group:
-      ensure => $ensure,
-    }
   }
 
   file {$user_home:
