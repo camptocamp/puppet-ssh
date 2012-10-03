@@ -1,29 +1,28 @@
 class ssh {
-  case $operatingsystem {
-    /RedHat|CentOS/: {
-      package { "openssh":
-        ensure => installed,
-        alias  => "ssh",
-      }
-    }
-    /Debian|Ubuntu/: {
-      package { "ssh":
-        ensure => installed
-      }
-    }
+
+  package {'ssh':
+    name => $::operatingsystem ? {
+      /Debian|Ubuntu/ => 'ssh',
+      /RedHat|CentOS/ => 'openssh',
+    },
+    ensure => present,
   }
 
-  service { "ssh":
+  service {'ssh':
+    name => $::operatingsystem ? {
+      /Debian|Ubuntu/ => 'ssh',
+      /RedHat|CentOS/ => 'sshd',
+    },
     ensure     => running,
     hasrestart => true,
-    pattern    => "/usr/sbin/sshd",
-    require    => Package["ssh"],
+    pattern    => '/usr/sbin/sshd',
+    require    => Package['ssh'],
   }
 
-  file { "/etc/ssh/ssh_known_hosts":
+  file {'/etc/ssh/ssh_known_hosts':
     ensure => present,
-    mode   => 0644,
-    owner  => "root",
+    mode   => '0644',
+    owner  => 'root',
   }
 
 }
