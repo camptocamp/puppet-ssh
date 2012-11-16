@@ -16,6 +16,9 @@
 # [*ssh_options*]
 #   Key options, see sshd(8) for possible values
 #
+# [*password*]
+#   Set the user's password
+#
 # [*present*]
 #   Define if this account is present or absent
 #
@@ -48,9 +51,10 @@
 # Mathieu Bornoz <mathieu.bornoz@camptocamp.com>
 #
 define ssh::sftp::user (
-  $ssh_key,
+  $ssh_key        = false,
   $ssh_type       = 'ssh-rsa',
   $ssh_options    = [],
+  $password       = false,
   $ensure         = 'present',
   $home           = false,
   $basedir        = 'uploads',
@@ -59,6 +63,15 @@ define ssh::sftp::user (
   $manage_basedir = true,
   $group          = 'sftponly'
 ) {
+
+  $using_ssh_key = $ssh_key ? {
+    false   => false,
+    default => true,
+  }
+
+  if ($using_ssh_key == false) and ($password == false) {
+    fail "Must specify at least one of 'password' or 'ssh_key' in ssh::sftp::user[$name]"
+  }
 
   $user_home = $home ? {
     false   => "/home/${name}",
@@ -81,6 +94,7 @@ define ssh::sftp::user (
 
   user {$name:
     ensure     => $ensure,
+    password   => $password ? { false => undef, default => $password },
     home       => $user_home,
     groups     => $group,
     shell      => $nologin_path,
@@ -96,13 +110,15 @@ define ssh::sftp::user (
     }
   }
 
-  ssh_authorized_key {"sftponly_${name}":
-    ensure  => $ensure,
-    user    => $name,
-    key     => $ssh_key,
-    type    => $ssh_type,
-    options => $ssh_options,
-    require => User[$name],
+  if $using_ssk_key {
+    ssh_authorized_key {"sftponly_${name}":
+      ensure  => $ensure,
+      user    => $name,
+      key     => $ssh_key,
+      type    => $ssh_type,
+      options => $ssh_options,
+      require => User[$name],
+    }
   }
 
   augeas {"internal-sftp for ${name}":
