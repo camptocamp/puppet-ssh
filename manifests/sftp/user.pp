@@ -64,11 +64,16 @@ define ssh::sftp::user (
     mode   => '0750',
   }
 
+  $nologin_path = $lsbdistid ? {
+    /Debian|Ubuntu/ => '/usr/sbin/nologin',
+    /RedHat|CentOS/ => '/sbin/nologin',
+  }
+
   user {$name:
     ensure  => $ensure,
     home    => $user_home,
     groups  => $group,
-    shell   => '/usr/lib/sftp-server',
+    shell   => $nologin_path,
     require => File[$user_home]
   }
 
