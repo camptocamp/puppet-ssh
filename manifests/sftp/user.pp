@@ -22,11 +22,17 @@
 # [*home*]
 #   The home directory of the user
 #
+# [*manage_home*]
+#   Select wether to manage the user's home directory
+#
 # [*basedir*]
 #   This directory will be used to store files
 #
 # [*basedir_mode*]
 #   The desired permissions for the base directory
+#
+# [*manage_basedir*]
+#   Select wether to manage the directory given in the basedir parameter.
 #
 # [*group*]
 #   The restricted sftp group name. Must be declared outside this definition.
@@ -43,13 +49,15 @@
 #
 define ssh::sftp::user (
   $ssh_key,
-  $ssh_type     = 'ssh-rsa',
-  $ssh_options  = [],
-  $ensure       = 'present',
-  $home         = false,
-  $basedir      = 'uploads',
-  $basedir_mode = '2775',
-  $group        = 'sftponly'
+  $ssh_type       = 'ssh-rsa',
+  $ssh_options    = [],
+  $ensure         = 'present',
+  $home           = false,
+  $basedir        = 'uploads',
+  $basedir_mode   = '2775',
+  $manage_home    = true,
+  $manage_basedir = true,
+  $group          = 'sftponly'
 ) {
 
   $user_home = $home ? {
@@ -57,11 +65,13 @@ define ssh::sftp::user (
     default => $home,
   }
 
-  file {$user_home:
-    ensure => directory,
-    owner  => 'root',
-    group  => $group,
-    mode   => '0750',
+  if $manage_home {
+    file {$user_home:
+      ensure => directory,
+      owner  => 'root',
+      group  => $group,
+      mode   => '0750',
+    }
   }
 
   $nologin_path = $lsbdistid ? {
@@ -70,19 +80,20 @@ define ssh::sftp::user (
   }
 
   user {$name:
-    ensure  => $ensure,
-    home    => $user_home,
-    groups  => $group,
-    shell   => $nologin_path,
-    require => File[$user_home]
+    ensure     => $ensure,
+    home       => $user_home,
+    groups     => $group,
+    shell      => $nologin_path,
   }
 
-  file {"${user_home}/${basedir}":
-    ensure  => directory,
-    mode    => $basedir_mode,
-    owner   => $name,
-    group   => $group,
-    require => [ User[$name], Group[$group] ],
+  if $manage_basedir {
+    file {"${user_home}/${basedir}":
+      ensure  => directory,
+      mode    => $basedir_mode,
+      owner   => $name,
+      group   => $group,
+      require => [ User[$name], Group[$group] ],
+    }
   }
 
   ssh_authorized_key {"sftponly_${name}":
