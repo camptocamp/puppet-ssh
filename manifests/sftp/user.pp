@@ -81,13 +81,13 @@ define ssh::sftp::user (
   if $manage_home {
     file {$user_home:
       ensure => directory,
-      owner  => 'root',
+      owner  => $name,
       group  => $group,
       mode   => '0750',
     }
   }
 
-  $nologin_path = $lsbdistid ? {
+  $nologin_path = $::lsbdistid ? {
     /Debian|Ubuntu/ => '/usr/sbin/nologin',
     /RedHat|CentOS/ => '/sbin/nologin',
   }
@@ -111,6 +111,13 @@ define ssh::sftp::user (
   }
 
   if $using_ssk_key {
+    file {"${user_home}/.ssh":
+      ensure => directory,
+      mode   => '0600',
+      owner  => $name,
+      group  => $name,
+    }
+
     ssh_authorized_key {"sftponly_${name}":
       ensure  => $ensure,
       user    => $name,
@@ -121,22 +128,45 @@ define ssh::sftp::user (
     }
   }
 
-  augeas {"internal-sftp for ${name}":
-    context => '/files/etc/ssh/sshd_config',
-    changes => 'set Subsystem/sftp "internal-sftp -u 0002"',
-    notify  => Service['ssh'],
+  sshd_config_subsystem {'sftp':
+    ensure  => $ensure,
+    command => 'internal-sftp -u 0002',
   }
 
-  augeas {"match group for ${name}":
-    context => '/files/etc/ssh/sshd_config',
-    changes => [
-      "set Match/Condition/group ${group}",
-      'set Match/Settings/ChrootDirectory %h',
-      'set Match/Settings/X11Forwarding no',
-      'set Match/Settings/AllowTcpForwarding no',
-      'set Match/Settings/ForceCommand "internal-sftp -u 0002"',
-    ],
-    notify  => Service['ssh'],
+  sshd_config {'PasswordAuthentication':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => 'yes',
+  }
+
+  sshd_config {'KbdInteractiveAuthentication':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => 'yes',
+  }
+
+  sshd_config {'ChrootDirectory':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => '%h',
+  }
+
+  sshd_config {'X11Forwarding':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => 'no',
+  }
+
+  sshd_config {'AllowTcpForwarding':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => 'no',
+  }
+
+  sshd_config {'ForceCommand internal-sftp':
+    ensure    => $ensure,
+    condition => "Group ${group}",
+    value     => '-u 0002',
   }
 
 }
