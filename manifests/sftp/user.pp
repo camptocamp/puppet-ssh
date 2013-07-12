@@ -81,7 +81,7 @@ define ssh::sftp::user (
   if $manage_home {
     file {$user_home:
       ensure => directory,
-      owner  => $name,
+      owner  => root,
       group  => $group,
       mode   => '0750',
     }
@@ -113,7 +113,7 @@ define ssh::sftp::user (
   if $using_ssk_key {
     file {"${user_home}/.ssh":
       ensure => directory,
-      mode   => '0600',
+      mode   => '0700',
       owner  => $name,
       group  => $name,
     }
@@ -124,7 +124,7 @@ define ssh::sftp::user (
       key     => $ssh_key,
       type    => $ssh_type,
       options => $ssh_options,
-      require => User[$name],
+      require => [File["${user_home}/.ssh"],User[$name]],
     }
   }
 
@@ -163,10 +163,10 @@ define ssh::sftp::user (
     value     => 'no',
   }
 
-  sshd_config {'ForceCommand internal-sftp':
+  sshd_config {'ForceCommand':
     ensure    => $ensure,
     condition => "Group ${group}",
-    value     => '-u 0002',
+    value     => 'internal-sftp -u 0002',
   }
 
 }
