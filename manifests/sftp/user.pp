@@ -28,6 +28,9 @@
 # [*manage_home*]
 #   Select wether to manage the user's home directory
 #
+# [*home_mode*]
+#   The desired permissions of the user's home directory, if manage_home is set
+#
 # [*basedir*]
 #   This directory will be used to store files
 #
@@ -57,6 +60,7 @@ define ssh::sftp::user (
   $password       = false,
   $ensure         = 'present',
   $home           = false,
+  $home_mode      = '0750',
   $basedir        = 'uploads',
   $basedir_mode   = '2775',
   $manage_home    = true,
@@ -83,7 +87,7 @@ define ssh::sftp::user (
       ensure => directory,
       owner  => root,
       group  => $group,
-      mode   => '0750',
+      mode   => $home_mode,
     }
   }
 
