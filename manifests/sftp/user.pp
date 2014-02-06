@@ -43,6 +43,8 @@
 # [*group*]
 #   The restricted sftp group name. Must be declared outside this definition.
 #
+# [*using_ssk_key*]
+#
 # === Examples
 #
 #   ssh::sftp::user { 'namevar':
@@ -65,7 +67,8 @@ define ssh::sftp::user (
   $basedir_mode   = '2775',
   $manage_home    = true,
   $manage_basedir = true,
-  $group          = 'sftponly'
+  $group          = 'sftponly',
+  $using_ssk_key  = false,
 ) {
 
   $using_ssh_key = $ssh_key ? {
