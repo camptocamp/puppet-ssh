@@ -1,4 +1,11 @@
-class ssh {
+class ssh(
+  $authorized_keys ,
+  $public_keys     = {},
+) {
+
+  validate_hash($authorized_keys)
+
+  create_resources('ssh::authorized_keys', $authorized_keys)
 
   package {'ssh':
     name => $::operatingsystem ? {
@@ -9,7 +16,7 @@ class ssh {
   }
 
   service {'ssh':
-    name => $::operatingsystem ? {
+    name       => $::operatingsystem ? {
       /Debian|Ubuntu/ => 'ssh',
       /RedHat|CentOS/ => 'sshd',
     },
