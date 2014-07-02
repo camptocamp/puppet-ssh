@@ -1,19 +1,24 @@
+# See README.md for details.
 class ssh {
 
+  $package_name = $::osfamily ? {
+    Debian => 'ssh',
+    RedHat => 'openssh',
+  }
+
   package {'ssh':
-    name => $::operatingsystem ? {
-      /Debian|Ubuntu/ => 'ssh',
-      /RedHat|CentOS/ => 'openssh',
-    },
     ensure => present,
+    name   => $package_name,
+  }
+
+  $service_name = $::osfamily ? {
+    Debian => 'ssh',
+    RedHat => 'sshd',
   }
 
   service {'ssh':
-    name => $::operatingsystem ? {
-      /Debian|Ubuntu/ => 'ssh',
-      /RedHat|CentOS/ => 'sshd',
-    },
     ensure     => running,
+    name       => $service_name,
     hasrestart => true,
     pattern    => '/usr/sbin/sshd',
     require    => Package['ssh'],

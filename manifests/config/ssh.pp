@@ -1,24 +1,20 @@
-/*
-
-== Definition: ssh::config::ssh
-
-Set a parameter in /etc/ssh/ssh_config
-
-Parameters:
-- *ensure*: present/absent;
-- *value*: value of the parameter
-
-Example usage:
-
-    ssh::config::ssh {'ForwardX11':
-      value => 'yes',
-    }
-
-*/
-
-define ssh::config::ssh (
-$ensure='present',
-$value=''
+# == Definition: ssh::config::ssh
+#
+# Set a parameter in /etc/ssh/ssh_config
+#
+# Parameters:
+# - *ensure*: present/absent;
+# - *value*: value of the parameter
+#
+# Example usage:
+#
+#     ssh::config::ssh {'ForwardX11':
+#       value => 'yes',
+#     }
+#
+define ssh::config::ssh(
+  $ensure = 'present',
+  $value  = '',
 ) {
 
   case $ensure {
@@ -30,7 +26,7 @@ $value=''
       $changes = "rm ${name}"
     }
 
-    'default': { fail("Wrong value for ensure: ${ensure}") }
+    default: { fail("Wrong value for ensure: ${ensure}") }
   }
 
   augeas {"Set ${name} in /etc/ssh/ssh_config":

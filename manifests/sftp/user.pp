@@ -77,7 +77,7 @@ define ssh::sftp::user (
   }
 
   if ($using_ssh_key == false) and ($password == false) {
-    fail "Must specify at least one of 'password' or 'ssh_key' in ssh::sftp::user[$name]"
+    fail "Must specify at least one of 'password' or 'ssh_key' in ssh::sftp::user[${name}]"
   }
 
   $user_home = $home ? {
@@ -99,9 +99,14 @@ define ssh::sftp::user (
     /RedHat|CentOS/ => '/sbin/nologin',
   }
 
+  $user_password = $password ? {
+    false   => undef,
+    default => $password,
+  }
+
   user {$name:
     ensure     => $ensure,
-    password   => $password ? { false => undef, default => $password },
+    password   => $user_password,
     home       => $user_home,
     groups     => $group,
     shell      => $nologin_path,
