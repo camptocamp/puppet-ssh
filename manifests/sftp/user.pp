@@ -122,7 +122,7 @@ define ssh::sftp::user (
     }
   }
 
-  if $using_ssk_key {
+  if $using_ssh_key {
     file {"${user_home}/.ssh":
       ensure => directory,
       mode   => '0700',
