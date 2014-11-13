@@ -105,11 +105,11 @@ define ssh::sftp::user (
   }
 
   user {$name:
-    ensure     => $ensure,
-    password   => $user_password,
-    home       => $user_home,
-    groups     => $group,
-    shell      => $nologin_path,
+    ensure   => $ensure,
+    password => $user_password,
+    home     => $user_home,
+    groups   => $group,
+    shell    => $nologin_path,
   }
 
   if $manage_basedir {
