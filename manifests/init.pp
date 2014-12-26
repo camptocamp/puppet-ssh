@@ -2,8 +2,8 @@
 class ssh {
 
   $package_name = $::osfamily ? {
-    Debian => 'ssh',
-    RedHat => 'openssh',
+    'Debian' => 'ssh',
+    'RedHat' => 'openssh',
   }
 
   package {'ssh':
@@ -12,8 +12,8 @@ class ssh {
   }
 
   $service_name = $::osfamily ? {
-    Debian => 'ssh',
-    RedHat => 'sshd',
+    'Debian' => 'ssh',
+    'RedHat' => 'sshd',
   }
 
   service {'ssh':
