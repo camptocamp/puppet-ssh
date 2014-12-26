@@ -1,25 +1,13 @@
 {
-  "name": "camptocamp-nagios",
+  "name": "camptocamp-ssh",
   "version": "1.0.0",
   "author": "Camptocamp",
-  "summary": "Puppet Nagios module",
+  "summary": "Puppet SSH module",
   "license": "Apache 2.0",
-  "source": "https://github.com/camptocamp/puppet-nagios",
-  "project_page": "https://github.com/camptocamp/puppet-nagios",
-  "issues_url": "https://github.com/camptocamp/puppet-nagios/issues",
+  "source": "https://github.com/camptocamp/puppet-ssh",
+  "project_page": "https://github.com/camptocamp/puppet-ssh",
+  "issues_url": "https://github.com/camptocamp/puppet-ssh/issues",
   "dependencies": [
-    {
-      "name": "camptocamp/selinux",
-      "version_requirement": ">=0.1.0 <1.0.0"
-    },
-    {
-      "name": "puppetlabs/concat",
-      "version_requirement": ">=1.0.0 <2.0.0"
-    },
-    {
-      "name": "puppetlabs/stdlib",
-      "version_requirement": ">=3.2.0 <5.0.0"
-    }
   ],
   "requirements": [
     {
