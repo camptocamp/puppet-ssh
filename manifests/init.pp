@@ -25,7 +25,7 @@ class ssh {
   }
 
   file {'/etc/ssh/ssh_known_hosts':
-    ensure => present,
+    ensure => file,
     mode   => '0644',
     owner  => 'root',
   }
