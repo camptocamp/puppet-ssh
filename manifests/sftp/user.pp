@@ -71,6 +71,11 @@ define ssh::sftp::user (
   $using_ssk_key  = false,
 ) {
 
+  $ensure_dir = $ensure ? {
+    'absent' => 'absent',
+    default  => directory,
+  }
+
   $using_ssh_key = $ssh_key ? {
     false   => false,
     default => true,
@@ -85,7 +90,7 @@ define ssh::sftp::user (
     default => $home,
   }
 
-  if $manage_home {
+  if $manage_home and $ensure == 'present' {
     file {$user_home:
       ensure => directory,
       owner  => root,
@@ -112,7 +117,7 @@ define ssh::sftp::user (
     shell    => $nologin_path,
   }
 
-  if $manage_basedir {
+  if $manage_basedir and $ensure == 'present' {
     file {"${user_home}/${basedir}":
       ensure  => directory,
       mode    => $basedir_mode,
@@ -124,7 +129,8 @@ define ssh::sftp::user (
 
   if $using_ssh_key {
     file {"${user_home}/.ssh":
-      ensure => directory,
+      ensure => $ensure_dir,
+      force  => true,
       mode   => '0700',
       owner  => $name,
       group  => $name,
