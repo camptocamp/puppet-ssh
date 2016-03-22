@@ -10,11 +10,16 @@ module Puppet::Parser::Functions
     type = args[0]
     key = args[1]
 
+    # Use a tempfile, as using stdin fails
+    tmp = Tempfile.new('sshpubkey_to_x509')
     begin
-      # /bin/dash (default in Ubuntu) doesn't support here-strings (<<<)
-      Puppet::Util::Execution.execute("bash -c \"ssh-keygen -f /dev/stdin -e -m pem <<<'#{type} #{key}'\"")
+      tmp.puts("#{type} #{key}")
+      tmp.close
+      Puppet::Util::Execution.execute("ssh-keygen -f #{tmp.path} -e -m pem")
     rescue Puppet::ExecutionFailure => detail
       raise Puppet::ParseError, "Failed to execute ssh-keygen: #{detail}", detail.backtrace
+    ensure
+      tmp.unlink
     end
   end
 end
