@@ -9,6 +9,7 @@ class ssh {
   package {'ssh':
     ensure => present,
     name   => $package_name,
+    notify => Service['ssh'],
   }
 
   $service_name = $::osfamily ? {
