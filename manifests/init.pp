@@ -21,7 +21,7 @@ class ssh {
     name       => $service_name,
     hasrestart => true,
     pattern    => '/usr/sbin/sshd',
-    require    => Package['ssh'],
+    subscribe  => Package['ssh'],
   }
 
   file {'/etc/ssh/ssh_known_hosts':
