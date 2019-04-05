@@ -9,7 +9,6 @@ class ssh {
   package {'ssh':
     ensure => present,
     name   => $package_name,
-    notify => Service['ssh'],
   }
 
   $service_name = $::osfamily ? {
@@ -22,7 +21,7 @@ class ssh {
     name       => $service_name,
     hasrestart => true,
     pattern    => '/usr/sbin/sshd',
-    require    => Package['ssh'],
+    subscribe  => Package['ssh'],
   }
 
   file {'/etc/ssh/ssh_known_hosts':
